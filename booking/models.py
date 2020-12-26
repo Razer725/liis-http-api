@@ -16,13 +16,13 @@ class Workplace(models.Model):
     def __str__(self):
         return str(self.workplace_number)
 
-    # class Meta:
-    #     unique_together = ['workplace_number', 'cabinet']
+    class Meta:
+        unique_together = ['workplace_number', 'cabinet']
 
 
 class Booking(models.Model):
     workplace = models.ForeignKey(Workplace, verbose_name='Рабочее место', on_delete=models.CASCADE,
-                                  related_name='workplace')
+                                  related_name='booking_workplace')
     datetime_from = models.DateTimeField(verbose_name='Дата начала бронирования')
     datetime_to = models.DateTimeField(verbose_name='Дата окончания бронирования')
 
