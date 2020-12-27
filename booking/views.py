@@ -1,5 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import AllowAny, IsAuthenticated, IsAuthenticatedOrReadOnly, IsAdminUser
 from django.shortcuts import get_list_or_404
 
 from .serializers import BookingSerializer, CabinetSerializer, WorkplaceSerializer, \
@@ -10,15 +12,13 @@ from .models import Booking, Workplace, Cabinet
 
 class BookingAPIView(APIView):
     """Бронирование рабочих мест на определенный период времени"""
+    permission_classes = (AllowAny, )
 
     def post(self, request):
         serializer = BookingSerializer(data=request.data)
         if serializer.is_valid():
-            print(serializer)
             serializer.save()
-            print("valid")
             return Response(serializer.data, status=201)
-        print("not valid")
         return Response(serializer.errors, status=400)
 
 

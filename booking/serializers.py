@@ -1,8 +1,5 @@
 from rest_framework import serializers
-import io
-from rest_framework.parsers import JSONParser
 from .models import Booking, Workplace, Cabinet
-import datetime
 
 
 class CabinetSerializer(serializers.ModelSerializer):
@@ -22,8 +19,6 @@ class WorkplaceSerializer(serializers.ModelSerializer):
 class BookingSerializer(serializers.ModelSerializer):
     """Бронирование рабочего места"""
 
-    # workplace = WorkplaceSerializer()
-
     def validate(self, data):
         if data['datetime_from'] > data['datetime_to']:
             raise serializers.ValidationError('Дата начала бронирования должна быть раньше окончания')
@@ -36,16 +31,9 @@ class BookingSerializer(serializers.ModelSerializer):
         return data
 
     def create(self, validated_data):
-        print(validated_data, 'validated data')
         booking = Booking.objects.all()
-
         start_date = validated_data['datetime_from']
         end_date = validated_data['datetime_to']
-        print(start_date, 'start date')
-        print(end_date, 'end date')
-        print(start_date < end_date)
-
-        print(booking, 'all')
         booking = Booking.objects.create(**validated_data)
         return booking
 
@@ -65,6 +53,7 @@ class ShowBookingSerializer(serializers.ModelSerializer):
 
 class ShowFreeWorkplacesSerializer(serializers.ModelSerializer):
     """Список свободных рабочих мест в указанный промежуток времени"""
+
     datetime_from = serializers.DateTimeField(required=False)
     datetime_to = serializers.DateTimeField(required=False)
 
