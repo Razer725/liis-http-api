@@ -1,19 +1,13 @@
-from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import viewsets
-from rest_framework import generics
-from rest_framework.decorators import action
+from django.shortcuts import get_list_or_404
+
 from .serializers import BookingSerializer, CabinetSerializer, WorkplaceSerializer, \
     ShowBookingSerializer, ShowFreeWorkplacesSerializer
+
 from .models import Booking, Workplace, Cabinet
-from rest_framework.decorators import api_view
-from django.db.models.options import Options
-import io
-from rest_framework.parsers import JSONParser
 
 
-# working
 class BookingAPIView(APIView):
     """Бронирование рабочих мест на определенный период времени"""
 
@@ -48,59 +42,49 @@ class ShowBookingAPIView(APIView):
     """Просмотр списка бронирований по id рабочего места"""
 
     def get(self, request, pk):
-        booking = Booking.objects.filter(workplace=pk)
+        # booking = Booking.objects.filter(workplace=pk)
+        booking = get_list_or_404(Booking, workplace=pk)
         serializer = ShowBookingSerializer(booking, many=True)
         return Response(serializer.data)
 
 
-# class ShowFreeWorkplacesAPIView(APIView):
-#     """Свободные рабочие места в указанный временной промежуток"""
-#
-#     # def get(self, request):
-#     #     return
-#
-#     def get(self, request):
-#         print(request.query_params)
-#         q = request.query_params
-#         start_date = q.get('datetime_from', None)
-#         end_date = q.get('datetime_to', None)
-#
-#         queryset = Booking.objects.all()
-#         serializer = ShowFreeWorkplacesSerializer(queryset, many=True)
-#         # if start_date:
-#         #     queryset = queryset.filter(datetime_from__lt=start_date)
-#         # if end_date:
-#         #     queryset = queryset.filter(datetime_to__gt=end_date)
-#         # print(queryset)
-#         return Response(serializer.data)
+class ShowFreeWorkplacesAPIView(APIView):
+    """
+    Свободные рабочие места в указанный временной промежуток.
+    Если временной промежуток не указан выводит список всех рабочих мест
+    """
 
+    def get(self, request):
+        q = request.query_params
+        start_date = q.get('datetime_from', None)
+        end_date = q.get('datetime_to', None)
 
-class ShowFreeWorkplacesAPIView(generics.ListAPIView):
-    """Свободные рабочие места в указанный временной промежуток"""
-
-    serializer_class = ShowFreeWorkplacesSerializer
-
-    def get_queryset(self, *args, **kwargs):
         queryset = Booking.objects.all()
+        w = Workplace.objects.all().values('workplace_number')
 
-        start_time = self.request.query_params.get('datetime_from', None)
-        end_time = self.request.query_params.get('datetime_to', None)
-        # queryset = Workplace.objects.all()
-        # print(queryset)
-        if start_time is not None and end_time is not None:
-            queryset = queryset.filter(datetime_from__range=(start_time, end_time),
-                                       datetime_to__range=(start_time, end_time))
-            print(queryset.values('workplace'), 'filtered queryset')
+        serializer = ShowFreeWorkplacesSerializer(data=request.query_params)
+        if not serializer.is_valid():
+            return Response(serializer.errors)
 
-        occupied_workplaces_id = queryset.values('workplace')
-        print(occupied_workplaces_id, 'occupied workplaces')
-        free_workplaces = Booking.objects.exclude(workplace__in=occupied_workplaces_id)
-        print(free_workplaces, 'free workplaces')
-        # if datetime_from is not None:
-        #     queryset = queryset.exclude(datetime_from__range=(queryset['datetime_from'], queryset['datetime_to']))
-        #     print(queryset, 'filter1')
-        # if datetime_to is not None:
-        #     queryset = queryset.filter(datetime_to__gt=datetime_to)
-        return free_workplaces.distinct()
-
-
+        if start_date is not None and end_date is not None:
+            queryset = queryset.filter(datetime_from__range=(start_date, end_date),
+                                       datetime_to__range=(start_date, end_date))
+            occupied_workplaces_id = queryset.values('workplace').distinct()
+            to_exclude = [o['workplace'] for o in occupied_workplaces_id]
+            w = w.exclude(workplace_number__in=to_exclude)
+            return Response(w)
+        elif start_date is not None:  # end_date=None
+            queryset = queryset.filter(datetime_from__gt=start_date,
+                                       datetime_to__gt=start_date)
+            occupied_workplaces_id = queryset.values('workplace').distinct()
+            to_exclude = [o['workplace'] for o in occupied_workplaces_id]
+            w = w.exclude(workplace_number__in=to_exclude)
+            return Response(w)
+        elif end_date is not None:  # start_date=None
+            queryset = queryset.filter(datetime_from__lt=end_date,
+                                       datetime_to__lt=end_date)
+            occupied_workplaces_id = queryset.values('workplace').distinct()
+            to_exclude = [o['workplace'] for o in occupied_workplaces_id]
+            w = w.exclude(workplace_number__in=to_exclude)
+            return Response(w)
+        return Response(w)

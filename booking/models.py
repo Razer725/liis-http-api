@@ -9,22 +9,17 @@ class Cabinet(models.Model):
 
 
 class Workplace(models.Model):
-    workplace_number = models.PositiveIntegerField('Номер рабочего места')
+    workplace_number = models.PositiveIntegerField('Номер рабочего места', primary_key=True)
     cabinet = models.ForeignKey(Cabinet, verbose_name='Кабинет', on_delete=models.CASCADE,
                                 related_name='cabinet')
 
     def __str__(self):
         return str(self.workplace_number)
 
-    class Meta:
-        unique_together = ['workplace_number', 'cabinet']
-
 
 class Booking(models.Model):
     workplace = models.ForeignKey(Workplace, verbose_name='Рабочее место', on_delete=models.CASCADE,
-                                  related_name='booking_workplace')
+                                  related_name='workplaces')
     datetime_from = models.DateTimeField(verbose_name='Дата начала бронирования')
     datetime_to = models.DateTimeField(verbose_name='Дата окончания бронирования')
 
-    def set_booking(self):
-        return
