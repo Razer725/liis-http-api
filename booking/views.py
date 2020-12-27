@@ -23,6 +23,7 @@ class BookingAPIView(APIView):
 
 
 class WorkplaceAPIView(APIView):
+    permission_classes = (AllowAny,)
 
     def get(self, request):
         booking = Workplace.objects.all()
@@ -31,6 +32,7 @@ class WorkplaceAPIView(APIView):
 
 
 class CabinetAPIView(APIView):
+    permission_classes = (AllowAny,)
 
     def get(self, request):
         booking = Cabinet.objects.all()
@@ -40,6 +42,7 @@ class CabinetAPIView(APIView):
 
 class ShowBookingAPIView(APIView):
     """Просмотр списка бронирований по id рабочего места"""
+    permission_classes = (AllowAny,)
 
     def get(self, request, pk):
         # booking = Booking.objects.filter(workplace=pk)
@@ -53,6 +56,8 @@ class ShowFreeWorkplacesAPIView(APIView):
     Свободные рабочие места в указанный временной промежуток.
     Если временной промежуток не указан выводит список всех рабочих мест
     """
+
+    permission_classes = (AllowAny,)
 
     def get(self, request):
         q = request.query_params
