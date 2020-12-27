@@ -3,14 +3,15 @@
 пример curl запроса:
 ```
 curl -X POST \
-  http://127.0.0.1:8000/api/booking/ \
+  https://liis-http-service.herokuapp.com/api/booking/ \
   -H 'cache-control: no-cache' \
   -H 'content-type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW' \
+  -H 'postman-token: d6e4d04f-8341-e638-5d5c-8c6db72303f8' \
   -F workplace=3 \
   -F datetime_from=2020-12-30T16:12:56Z \
   -F datetime_to=2020-12-30T18:14:56Z
 ```
-ответ:
+пример ответа:
 ```
 {
     "workplace": 3,
@@ -23,10 +24,11 @@ curl -X POST \
 
 ```
 curl -X GET \
-  http://127.0.0.1:8000/api/show-booking/1/ \
+  https://liis-http-service.herokuapp.com/api/show-booking/1/ \
   -H 'cache-control: no-cache' \
+  -H 'postman-token: bd61ae1b-2322-154f-b6d5-cbcf6ff546af'
 ```
-ответ:
+пример ответа:
 ```
 [
     {
@@ -51,13 +53,14 @@ curl -X GET \
 пример curl запроса:
 ```
 curl -X POST \
-  http://127.0.0.1:8000/api-token-auth/ \
+  https://liis-http-service.herokuapp.com/api-token-auth/ \
   -H 'cache-control: no-cache' \
   -H 'content-type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW' \
-  -F username=ivan \
+  -H 'postman-token: 355cadc9-b247-443a-b3bd-38a2d34661d4' \
+  -F username=admin \
   -F password=123456
 ```
-ответ:
+пример ответа:
 ```
 {
     "token": "35342541b998910807740af659cc9d7856e6a486"
@@ -67,10 +70,11 @@ curl -X POST \
 пример curl запроса:
 ```
 curl -X GET \
-  'http://127.0.0.1:8000/api/free-workplaces/?datetime_from=2020-12-29T16%3A11%3A56Z&datetime_to=2020-12-30T16%3A11%3A58Z' \
+  'https://liis-http-service.herokuapp.com/api/free-workplaces/?datetime_from=2019-12-29T16%3A11%3A56Z&datetime_to=2020-12-30T16%3A11%3A58Z' \
   -H 'cache-control: no-cache' \
+  -H 'postman-token: ed8485ce-4afc-f6ce-dfe2-534e37e8382c'
 ```
-ответ:
+пример ответа:
 ```
 [
     {
@@ -78,3 +82,5 @@ curl -X GET \
     }
 ]
 ```
+
+
